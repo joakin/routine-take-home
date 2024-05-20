@@ -1,10 +1,14 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from "vue";
 import { defineProps } from "vue";
+import { useDebouncedRef } from "../utils/vue";
 
-const props = defineProps<{ onAutocomplete: (word: string) => void }>();
+const props = defineProps<{
+  onAutocomplete: (word: string) => void;
+  onAutocompleteClose: () => void;
+}>();
 
-const text = ref("");
+const text = useDebouncedRef("");
 const textInput = ref<HTMLInputElement | null>(null);
 
 const onInput = () => {
@@ -19,15 +23,20 @@ onMounted(() => {
   }
 });
 
-watch(text, (newValue) => {
-  const match = newValue.match(/(I pick you\s+)(\w+)(\s+|$)/);
+watch(text, (newText) => {
+  const cursorPos = textInput.value?.selectionStart;
+  const match = newText.match(/(I pick you\s+)(\w+)(\s+|$)/);
   if (match) {
-    const cursorPosition = textInput.value?.selectionStart || 0;
+    const cursorPosition = cursorPos || 0;
     const wordStart = match.index + match[1].length;
     const wordEnd = wordStart + match[2].length;
     if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
       props.onAutocomplete(match[2]);
+    } else {
+      props.onAutocompleteClose();
     }
+  } else {
+    props.onAutocompleteClose();
   }
 });
 </script>

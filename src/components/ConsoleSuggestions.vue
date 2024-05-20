@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ConsoleSuggestionItem from "./ConsoleSuggestionItem.vue";
 
-type ConsoleSuggestion =
+export type Suggestions =
   | { kind: "NotAsked" }
   | {
       kind: "Fetching";
@@ -17,7 +17,7 @@ type ConsoleSuggestion =
       err: Error;
     };
 
-defineProps<{ suggestions: ConsoleSuggestion }>();
+defineProps<{ suggestions: Suggestions }>();
 </script>
 
 <template>
@@ -38,7 +38,12 @@ defineProps<{ suggestions: ConsoleSuggestion }>();
         "
       >
         <template v-if="suggestions.response.length === 0">
-          <p class="placeholder">No suggestions available.</p>
+          <p class="placeholder">
+            <template v-if="suggestions.kind === 'Fetching'">
+              Searching...
+            </template>
+            <template v-else> No suggestions available. </template>
+          </p>
         </template>
         <template v-else>
           <ConsoleSuggestionItem
