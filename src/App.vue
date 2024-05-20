@@ -25,7 +25,7 @@ const suggestions = { kind: "Fetching", response: test_suggestions } as const;
 <template>
   <main>
     <div class="console">
-      <ConsoleInput />
+      <ConsoleInput :onAutocomplete="console.log.bind(console)" />
       <ConsoleSuggestions
         class="console-suggestions"
         :suggestions="suggestions"
