@@ -20,17 +20,20 @@ const onInput = (event: Event) => {
 
 <style scoped>
 input {
-  --x-spacing: 24px;
   width: 100%;
-  padding: 16px var(--x-spacing);
-  font-size: 26px;
+  padding: var(--space) var(--space-l);
+
+  font-size: var(--font-size-xl);
   line-height: 39px;
+
   border-radius: 5px;
+
   border: none;
   outline: none;
+
   background-image: url("../assets/logo.svg");
   background-repeat: no-repeat;
-  background-position: calc(100% - var(--x-spacing)) center;
+  background-position: calc(100% - var(--space-l)) center;
 }
 
 input.no-background {
