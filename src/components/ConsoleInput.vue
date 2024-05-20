@@ -28,7 +28,7 @@ watch(text, (newText) => {
   const match = newText.match(/(I pick you\s+)(\w+)(\s+|$)/);
   if (match) {
     const cursorPosition = cursorPos || 0;
-    const wordStart = match.index + match[1].length;
+    const wordStart = match.index || 0 + match[1].length;
     const wordEnd = wordStart + match[2].length;
     if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
       props.onAutocomplete(match[2]);
@@ -46,7 +46,7 @@ watch(text, (newText) => {
     ref="textInput"
     type="text"
     placeholder="What will you pick?"
-    :class="{ 'no-background': text.value !== '' }"
+    :class="{ 'no-background': text !== '' }"
     @input="onInput"
   />
 </template>

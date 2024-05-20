@@ -6,14 +6,32 @@ import type { Suggestions } from "./api/suggestions";
 import * as suggestionsApi from "./api/suggestions";
 
 const suggestions = ref<Suggestions | null>(null);
+const focusedSuggestion = ref<string>("");
 
 async function onAutocomplete(word: string) {
   suggestions.value = suggestionsApi.getLoadingSuggestions(suggestions.value);
   suggestions.value = await suggestionsApi.getSuggestions(word);
+  focusedSuggestion.value =
+    suggestions.value &&
+    (suggestions.value.kind === "Success" ||
+      suggestions.value.kind === "Loading") &&
+    suggestions.value.response &&
+    suggestions.value.response.length > 0
+      ? suggestions.value.response[0]
+      : "";
 }
 
 function onAutocompleteClose() {
   suggestions.value = null;
+}
+
+function onFocusedSuggestion(suggestion: string) {
+  focusedSuggestion.value = suggestion;
+}
+
+function onSelectedSuggestion(suggestion: string) {
+  onAutocompleteClose();
+  console.log("selected", suggestion);
 }
 </script>
 
@@ -28,6 +46,9 @@ function onAutocompleteClose() {
         <ConsoleSuggestions
           class="console-suggestions"
           :suggestions="suggestions"
+          :focusedSuggestion="focusedSuggestion"
+          @select="onSelectedSuggestion"
+          @focus="onFocusedSuggestion"
         />
       </transition>
     </div>

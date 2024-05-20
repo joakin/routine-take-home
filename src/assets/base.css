@@ -16,6 +16,7 @@
 
   --background-color: var(--color-bg-grey-1);
   --background-color-selected: var(--color-grey-5);
+  --background-color-hovered: var(--color-grey-6);
   --background-color-scrollbar: var(--color-grey-2);
   --background-color-scrollbar-hover: var(--color-grey-1);
 

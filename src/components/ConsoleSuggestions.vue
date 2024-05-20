@@ -2,7 +2,15 @@
 import ConsoleSuggestionItem from "./ConsoleSuggestionItem.vue";
 import type { Suggestions } from "../api/suggestions";
 
-defineProps<{ suggestions: Suggestions }>();
+const props = defineProps<{
+  suggestions: Suggestions;
+  focusedSuggestion: string | null;
+}>();
+
+const emit = defineEmits<{
+  select: [suggestion: string];
+  focus: [suggestion: string];
+}>();
 </script>
 
 <template>
@@ -31,7 +39,10 @@ defineProps<{ suggestions: Suggestions }>();
           <ConsoleSuggestionItem
             v-for="suggestion in suggestions.response"
             :key="suggestion"
-            :selected="suggestion === 'Suggestion 1'"
+            :focused="suggestion === focusedSuggestion"
+            :name="suggestion"
+            @select="emit('select', suggestion)"
+            @focus="emit('focus', suggestion)"
           >
             {{ suggestion }}
           </ConsoleSuggestionItem>
