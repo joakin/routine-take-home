@@ -1,7 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import ConsoleInput from "./components/ConsoleInput.vue";
+</script>
 
 <template>
-  <main></main>
+  <main>
+    <ConsoleInput />
+  </main>
 </template>
 
 <style scoped></style>
