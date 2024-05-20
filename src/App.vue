@@ -2,33 +2,14 @@
 import { ref } from "vue";
 import ConsoleInput from "./components/ConsoleInput.vue";
 import ConsoleSuggestions from "./components/ConsoleSuggestions.vue";
-import type { Suggestions } from "./components/ConsoleSuggestions.vue";
+import type { Suggestions } from "./api/suggestions";
+import * as suggestionsApi from "./api/suggestions";
 
 const suggestions = ref<Suggestions | null>(null);
 
-const test_suggestions = [
-  "Suggestion 1",
-  "Suggestion 2",
-  "Suggestion 3",
-  "Suggestion 4",
-  "Suggestion 5",
-  "Suggestion 6",
-  "Suggestion 7",
-  "Suggestion 8",
-  "Suggestion 9",
-  "Suggestion 10",
-];
-// const suggestions = { kind: "NotAsked" } as const;
-// const suggestions = { kind: "Success", response: [] } as const;
-// const suggestions = { kind: "Success", response: test_suggestions } as const;
-// const suggestions = { kind: "Fetching", response: [] } as const;
-// const suggestions = { kind: "Fetching", response: test_suggestions } as const;
-// const suggestions = { kind: "Error", err: new Error("Couldn't fetch suggestions") } as const;
-
 async function onAutocomplete(word: string) {
-  suggestions.value = { kind: "Fetching", response: [] };
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-  suggestions.value = { kind: "Success", response: test_suggestions };
+  suggestions.value = suggestionsApi.getLoadingSuggestions(suggestions.value);
+  suggestions.value = await suggestionsApi.getSuggestions(word);
 }
 
 function onAutocompleteClose() {

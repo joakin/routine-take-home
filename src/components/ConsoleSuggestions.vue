@@ -1,21 +1,6 @@
 <script setup lang="ts">
 import ConsoleSuggestionItem from "./ConsoleSuggestionItem.vue";
-
-export type Suggestions =
-  | { kind: "NotAsked" }
-  | {
-      kind: "Fetching";
-      // The previous response if any
-      response: string[];
-    }
-  | {
-      kind: "Success";
-      response: string[];
-    }
-  | {
-      kind: "Error";
-      err: Error;
-    };
+import type { Suggestions } from "../api/suggestions";
 
 defineProps<{ suggestions: Suggestions }>();
 </script>
@@ -23,23 +8,20 @@ defineProps<{ suggestions: Suggestions }>();
 <template>
   <div
     class="console-suggestions"
-    v-bind:class="{ 'is-loading': suggestions.kind === 'Fetching' }"
+    v-bind:class="{ 'is-loading': suggestions.kind === 'Loading' }"
   >
     <div class="console-suggestions-inner">
-      <template v-if="suggestions.kind === 'NotAsked'">
-        <p class="placeholder">Type a name to get some suggestions.</p>
-      </template>
-      <template v-else-if="suggestions.kind === 'Error'">
+      <template v-if="suggestions.kind === 'Error'">
         <p class="placeholder">{{ suggestions.err.message }}</p>
       </template>
       <template
         v-else-if="
-          suggestions.kind === 'Fetching' || suggestions.kind === 'Success'
+          suggestions.kind === 'Loading' || suggestions.kind === 'Success'
         "
       >
         <template v-if="suggestions.response.length === 0">
           <p class="placeholder">
-            <template v-if="suggestions.kind === 'Fetching'">
+            <template v-if="suggestions.kind === 'Loading'">
               Searching...
             </template>
             <template v-else> No suggestions available. </template>
