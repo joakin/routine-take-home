@@ -30,4 +30,16 @@ defineProps<{ suggestions: string[] }>();
   box-shadow: 0px 0px 40px 0px rgba(0, 0, 0, 0.2);
   margin-top: -2px;
 }
+
+.console-suggestions::-webkit-scrollbar {
+  width: 4px;
+}
+
+.console-suggestions::-webkit-scrollbar-thumb {
+  background-color: var(--background-color-scrollbar);
+  border-radius: 2px;
+}
+.console-suggestions::-webkit-scrollbar-thumb:hover {
+  background-color: var(--background-color-scrollbar-hover);
+}
 </style>

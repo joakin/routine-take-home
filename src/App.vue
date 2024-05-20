@@ -2,7 +2,13 @@
 import ConsoleInput from "./components/ConsoleInput.vue";
 import ConsoleSuggestions from "./components/ConsoleSuggestions.vue";
 
-const suggestions = ["Suggestion 1", "Suggestion 2", "Suggestion 3"];
+const suggestions = [
+  "Suggestion 1",
+  "Suggestion 2",
+  "Suggestion 3",
+  "Suggestion 4",
+  "Suggestion 5",
+];
 </script>
 
 <template>
