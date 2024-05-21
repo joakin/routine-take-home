@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from "vue";
 import { defineProps, defineExpose } from "vue";
 import { useDebouncedRef } from "../utils/vue";
+import * as helpers from "./ConsoleInput/helpers";
 
 const props = defineProps<{
   completionsOpen: boolean;
@@ -17,30 +18,13 @@ const emit = defineEmits<{
   lastCompletion: [];
 }>();
 
-const text = ref("");
 const textInput = ref<HTMLDivElement | null>(null);
+const isEmpty = ref(true);
 
 defineExpose({
   completeWord(word: string) {
     if (textInput.value) {
-      const input = textInput.value;
-      const selection = window.getSelection();
-      const cursorPos = selection?.getRangeAt(0).startOffset || 0;
-      const originalText = input.textContent || "";
-      const beforeCursor = originalText.slice(0, cursorPos);
-      const afterCursor = originalText.slice(cursorPos);
-      const lastSpaceIndex = beforeCursor.lastIndexOf(" ");
-      const beforeWord = beforeCursor.slice(0, lastSpaceIndex + 1);
-
-      const newText = beforeWord + word + " " + afterCursor;
-      input.innerHTML = newText;
-      text.value = newText;
-
-      const range = document.createRange();
-      range.setStart(input.childNodes[0], beforeWord.length + word.length + 1);
-      range.collapse(true);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
+      helpers.completeChipContent(textInput.value, word);
     }
   },
 });
@@ -51,6 +35,7 @@ onMounted(() => {
   }
 });
 
+/*
 watch(text, (newText) => {
   const selection = window.getSelection();
   const cursorPos = selection?.getRangeAt(0).startOffset;
@@ -67,10 +52,12 @@ watch(text, (newText) => {
   }
   emit("autocompleteClose");
 });
+*/
 
-const onInput = () => {
+const onInput = (event: InputEvent) => {
   if (textInput.value) {
-    text.value = textInput.value.textContent;
+    helpers.handleInputChange(textInput.value, event);
+    isEmpty.value = textInput.value.textContent?.length === 0;
   }
 };
 
@@ -111,9 +98,9 @@ const onKeyDown = (event: KeyboardEvent) => {
     ref="textInput"
     contenteditable="true"
     :class="{
-      'no-background': text !== '' && !props.completionsOpen,
+      'no-background': !isEmpty && !props.completionsOpen,
       'background-enter-key': props.completionsOpen,
-      placeholder: text === '',
+      placeholder: isEmpty,
     }"
     @input="onInput"
     @keydown="onKeyDown"
@@ -139,6 +126,10 @@ const onKeyDown = (event: KeyboardEvent) => {
   background-position: calc(100% - var(--space-l)) center;
 }
 
+.console-input span {
+  display: inline-block;
+}
+
 .no-background {
   background-image: none;
 }
@@ -150,5 +141,17 @@ const onKeyDown = (event: KeyboardEvent) => {
 .placeholder::before {
   color: var(--color-text-placeholder);
   content: "What will you pick?";
+}
+</style>
+
+<style>
+.console-input-keyword {
+  color: blue;
+}
+.console-input-chip {
+  color: brown;
+  background-color: papayawhip;
+  padding: 2px 4px;
+  border-radius: 3px;
 }
 </style>
