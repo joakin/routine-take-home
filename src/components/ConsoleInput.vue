@@ -35,7 +35,7 @@ onMounted(() => {
   }
 });
 
-const onInput = (event: Event) => {
+function onInput(event: Event) {
   if (textInput.value) {
     const { requestCompletions } = helpers.handleInputChange(
       textInput.value,
@@ -49,9 +49,9 @@ const onInput = (event: Event) => {
       emit("autocompleteClose");
     }
   }
-};
+}
 
-const onKeyDown = (event: KeyboardEvent) => {
+function onKeyDown(event: KeyboardEvent) {
   if (props.completionsOpen) {
     if (event.key === "ArrowUp" || (event.key === "p" && event.ctrlKey)) {
       emit("previousCompletion");
@@ -79,7 +79,63 @@ const onKeyDown = (event: KeyboardEvent) => {
       event.preventDefault();
     }
   }
-};
+}
+
+// From https://w3c.github.io/input-events/#interface-InputEvent-Attributes
+const blockedInputTypes = [
+  // "insertText",
+  // "insertReplacementText",
+  "insertLineBreak",
+  "insertParagraph",
+  "insertOrderedList",
+  "insertUnorderedList",
+  "insertHorizontalRule",
+  // "insertFromYank",
+  // "insertFromDrop",
+  // "insertFromPaste",
+  "insertFromPasteAsQuotation",
+  // "insertTranspose",
+  // "insertCompositionText",
+  "insertLink",
+  // "deleteWordBackward",
+  // "deleteWordForward",
+  // "deleteSoftLineBackward",
+  // "deleteSoftLineForward",
+  // "deleteEntireSoftLine",
+  // "deleteHardLineBackward",
+  // "deleteHardLineForward",
+  // "deleteByDrag",
+  // "deleteByCut",
+  // "deleteContent",
+  // "deleteContentBackward",
+  // "deleteContentForward",
+  // "historyUndo",
+  // "historyRedo",
+  "formatBold",
+  "formatItalic",
+  "formatUnderline",
+  "formatStrikeThrough",
+  "formatSuperscript",
+  "formatSubscript",
+  "formatJustifyFull",
+  "formatJustifyCenter",
+  "formatJustifyRight",
+  "formatJustifyLeft",
+  "formatIndent",
+  "formatOutdent",
+  "formatRemove",
+  "formatSetBlockTextDirection",
+  "formatSetInlineTextDirection",
+  "formatBackColor",
+  "formatFontColor",
+  "formatFontName",
+];
+
+function onBeforeInput(event: Event) {
+  if (blockedInputTypes.includes((event as InputEvent).inputType)) {
+    event.preventDefault();
+  }
+}
 </script>
 
 <template>
@@ -95,6 +151,7 @@ const onKeyDown = (event: KeyboardEvent) => {
     }"
     @input="onInput"
     @keydown="onKeyDown"
+    @beforeinput="onBeforeInput"
   ></div>
 </template>
 
