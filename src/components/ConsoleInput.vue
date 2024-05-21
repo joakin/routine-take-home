@@ -17,27 +17,30 @@ const emit = defineEmits<{
   lastCompletion: [];
 }>();
 
-const text = useDebouncedRef("");
-const textInput = ref<HTMLInputElement | null>(null);
+const text = ref("");
+const textInput = ref<HTMLDivElement | null>(null);
 
 defineExpose({
   completeWord(word: string) {
     if (textInput.value) {
       const input = textInput.value;
-      const cursorPos = input.selectionStart || 0;
-      const originalText = input.value || "";
+      const selection = window.getSelection();
+      const cursorPos = selection?.getRangeAt(0).startOffset || 0;
+      const originalText = input.textContent || "";
       const beforeCursor = originalText.slice(0, cursorPos);
       const afterCursor = originalText.slice(cursorPos);
       const lastSpaceIndex = beforeCursor.lastIndexOf(" ");
       const beforeWord = beforeCursor.slice(0, lastSpaceIndex + 1);
 
       const newText = beforeWord + word + " " + afterCursor;
-      input.value = newText;
+      input.innerHTML = newText;
       text.value = newText;
-      input.setSelectionRange(
-        beforeWord.length + word.length + 1,
-        beforeWord.length + word.length + 1,
-      );
+
+      const range = document.createRange();
+      range.setStart(input.childNodes[0], beforeWord.length + word.length + 1);
+      range.collapse(true);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
     }
   },
 });
@@ -49,7 +52,8 @@ onMounted(() => {
 });
 
 watch(text, (newText) => {
-  const cursorPos = textInput.value?.selectionStart;
+  const selection = window.getSelection();
+  const cursorPos = selection?.getRangeAt(0).startOffset;
   for (const match of newText.matchAll(/(I pick you\s+)(\w*)(\s+|$)/g)) {
     if (match) {
       const cursorPosition = cursorPos || 0;
@@ -66,7 +70,7 @@ watch(text, (newText) => {
 
 const onInput = () => {
   if (textInput.value) {
-    text.value = textInput.value.value;
+    text.value = textInput.value.textContent;
   }
 };
 
@@ -102,45 +106,49 @@ const onKeyDown = (event: KeyboardEvent) => {
 </script>
 
 <template>
-  <input
+  <div
+    class="console-input"
     ref="textInput"
-    type="text"
-    placeholder="What will you pick?"
+    contenteditable="true"
     :class="{
       'no-background': text !== '' && !props.completionsOpen,
       'background-enter-key': props.completionsOpen,
+      placeholder: text === '',
     }"
     @input="onInput"
     @keydown="onKeyDown"
-  />
+  ></div>
 </template>
 
 <style scoped>
-input {
+.console-input {
   width: 100%;
   padding: var(--space) var(--space-l);
 
   font-size: var(--font-size-xl);
   line-height: 39px;
+  color: var(--color-text);
 
   border-radius: 5px;
   border: none;
   outline: none;
 
+  background-color: var(--background-color);
   background-image: url("../assets/logo.svg");
   background-repeat: no-repeat;
   background-position: calc(100% - var(--space-l)) center;
 }
 
-input.no-background {
+.no-background {
   background-image: none;
 }
 
-input.background-enter-key {
+.background-enter-key {
   background-image: url("../assets/enter.svg");
 }
 
-input::placeholder {
+.placeholder::before {
   color: var(--color-text-placeholder);
+  content: "What will you pick?";
 }
 </style>
