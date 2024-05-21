@@ -48,23 +48,19 @@ onMounted(() => {
 
 watch(text, (newText) => {
   const cursorPos = textInput.value?.selectionStart;
-  let shouldCloseAutocomplete = false;
-  for (const match of newText.matchAll(/(I pick you\s+)(\w+)(\s+|$)/g)) {
+  for (const match of newText.matchAll(/(I pick you\s+)(\w*)(\s+|$)/g)) {
     if (match) {
       const cursorPosition = cursorPos || 0;
       const wordStart = (match.index || 0) + match[1].length;
       const wordEnd = wordStart + match[2].length;
+      console.log(wordStart, wordEnd, cursorPosition);
       if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
         emit("autocomplete", match[2]);
         return;
-      } else {
-        shouldCloseAutocomplete = true;
       }
     }
   }
-  if (shouldCloseAutocomplete) {
-    emit("autocompleteClose");
-  }
+  emit("autocompleteClose");
 });
 </script>
 
