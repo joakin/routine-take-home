@@ -198,6 +198,7 @@ function onBeforeInput(event: Event) {
 }
 
 .console-input-chip {
+  display: inline-block;
   padding: var(--space-xxxxxs) var(--space-xxs);
 
   font-size: var(--font-size-l);
