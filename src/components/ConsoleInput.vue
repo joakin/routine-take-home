@@ -3,13 +3,10 @@ import { ref, watch, onMounted } from "vue";
 import { defineProps, defineExpose } from "vue";
 import { useDebouncedRef } from "../utils/vue";
 
-const props = defineProps<{
-  onAutocomplete: (word: string) => void;
-  onAutocompleteClose: () => void;
-}>();
-
 const emit = defineEmits<{
   enter: [];
+  autocomplete: [word: string];
+  autocompleteClose: [];
 }>();
 
 const text = useDebouncedRef("");
@@ -58,7 +55,7 @@ watch(text, (newText) => {
       const wordStart = (match.index || 0) + match[1].length;
       const wordEnd = wordStart + match[2].length;
       if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
-        props.onAutocomplete(match[2]);
+        emit("autocomplete", match[2]);
         return;
       } else {
         shouldCloseAutocomplete = true;
@@ -66,7 +63,7 @@ watch(text, (newText) => {
     }
   }
   if (shouldCloseAutocomplete) {
-    props.onAutocompleteClose();
+    emit("autocompleteClose");
   }
 });
 </script>

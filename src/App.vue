@@ -43,8 +43,8 @@ function onSelectedSuggestion(suggestion: string) {
     <div class="console">
       <ConsoleInput
         ref="consoleInput"
-        :onAutocomplete="onAutocomplete"
-        :onAutocompleteClose="onAutocompleteClose"
+        @autocomplete="onAutocomplete"
+        @autocompleteClose="onAutocompleteClose"
         @enter="onSelectedSuggestion(focusedSuggestion)"
       />
       <transition name="fade-up" v-if="suggestions">
