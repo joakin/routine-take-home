@@ -98,30 +98,37 @@ function onFocusLastSuggestion() {
         @firstCompletion="onFocusFirstSuggestion"
         @lastCompletion="onFocusLastSuggestion"
       />
-      <transition name="fade-up" v-if="suggestions">
+      <Transition name="fade-up">
         <ConsoleSuggestions
+          v-if="suggestions"
           class="console-suggestions"
           :suggestions="suggestions"
           :focusedSuggestion="focusedSuggestion"
           @select="onSelectedSuggestion"
           @focus="onFocusedSuggestion"
         />
-      </transition>
+      </Transition>
     </div>
   </main>
 </template>
 
 <style>
-.fade-up-enter-active,
-.fade-up-leave-active {
+.fade-up-enter-active {
   transition:
-    transform 0.5s,
-    opacity 0.5s;
+    transform 0.15s ease-in,
+    opacity 0.2s ease-in;
 }
 
-.fade-up-enter,
+.fade-up-leave-active {
+  transition:
+    transform 0.2s ease-out,
+    opacity 0.1s ease-out;
+}
+
+.fade-up-enter-from,
 .fade-up-leave-to {
-  transform: translateY(20px);
+  transform-origin: top center;
+  transform: perspective(500px) translateY(-20px) rotateX(20deg);
   opacity: 0;
 }
 </style>
