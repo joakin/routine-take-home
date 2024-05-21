@@ -96,7 +96,14 @@ function mergeContiguousNodes(parent: HTMLElement) {
       if (charCount + nodeLength >= cursorPos) {
         const range = document.createRange();
         const offset = cursorPos - charCount;
-        range.setStart(node, offset);
+        const childNode = node.childNodes[0];
+
+        if (childNode) {
+          range.setStart(childNode, offset);
+        } else {
+          range.setStart(node, offset);
+        }
+
         range.collapse(true);
         selection.removeAllRanges();
         selection.addRange(range);
@@ -114,12 +121,21 @@ function isKeywordNode(node: Node): node is HTMLSpanElement {
   return isSpanNode(node) && node.classList.contains(keywordClass);
 }
 
+function isChipNode(node: Node): node is HTMLSpanElement {
+  return isSpanNode(node) && node.classList.contains(chipClass);
+}
+
 /**
  * Handle changes to the input box by merging contiguous same type nodes, and
  * parsing the text to create keyword and chip spans.
  */
-export function handleInputChange(input: HTMLDivElement, _event: InputEvent) {
+export function handleInputChange(
+  input: HTMLDivElement,
+  _event: InputEvent,
+): { requestCompletions: string | null } {
   const keywordPattern = /I pick you/;
+  const keywordPatternStrict = /^I pick you$/;
+  const keywordPatternWithSpace = /^I pick you(?: |\u00A0)$/;
   const nodes = input.childNodes;
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i];
@@ -140,18 +156,27 @@ export function handleInputChange(input: HTMLDivElement, _event: InputEvent) {
 
         i += 1;
       }
-    } else if (isSpanNode(node) && node.classList.contains(keywordClass)) {
-      if (!keywordPattern.test(node.textContent || "")) {
-        unwrapSpanNode(node);
-      } else if (
-        node.textContent!.endsWith(" ") ||
-        node.textContent!.endsWith(nonBreakingSpace)
-      ) {
+    } else if (isKeywordNode(node)) {
+      if (keywordPatternWithSpace.test(node.textContent || "")) {
         node.textContent = node.textContent!.slice(0, -1);
 
         const space = document.createTextNode(nonBreakingSpace);
         node.after(space);
         setCursorAfterNode(space);
+      } else if (!keywordPatternStrict.test(node.textContent || "")) {
+        unwrapSpanNode(node);
+        if (i + 1 < nodes.length) {
+          const anotherNode = nodes[i + 1];
+          if (isChipNode(anotherNode)) {
+            unwrapSpanNode(anotherNode);
+          }
+        }
+        if (i + 2 < nodes.length) {
+          const anotherNode = nodes[i + 2];
+          if (isChipNode(anotherNode)) {
+            unwrapSpanNode(anotherNode);
+          }
+        }
       }
     } else if (isTextNode(node) && i > 0 && isKeywordNode(nodes[i - 1])) {
       const match = /^(\s+)(\w+)/.exec(node.nodeValue!);
@@ -168,7 +193,7 @@ export function handleInputChange(input: HTMLDivElement, _event: InputEvent) {
 
         i += 1;
       }
-    } else if (isSpanNode(node) && node.classList.contains(chipClass)) {
+    } else if (isChipNode(node)) {
       if (node.textContent!.length === 0) {
         node.textContent = nonBreakingSpace;
       } else if (node.textContent!.length > 1) {
@@ -208,6 +233,30 @@ export function handleInputChange(input: HTMLDivElement, _event: InputEvent) {
   }
 
   mergeContiguousNodes(input);
+
+  const requestCompletions = getChipWordAtCursor(input);
+  return { requestCompletions };
+}
+
+export function getChipWordAtCursor(input: HTMLDivElement): string | null {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) {
+    return null;
+  }
+
+  const range = selection.getRangeAt(0);
+
+  for (const node of input.childNodes) {
+    if (
+      isChipNode(node) &&
+      (selection.containsNode(node, true) ||
+        (node.firstChild && selection.containsNode(node.firstChild, true)))
+    ) {
+      return node.textContent?.trim() || null;
+    }
+  }
+
+  return null;
 }
 
 function setCursorAfterNode(node: Node) {
@@ -231,20 +280,22 @@ function setCursorAtEndOfNode(node: Node) {
 /**
  * Complete the contents of a chip and move the cursor to the end
  */
-export function completeChipContent(input: HTMLInputElement, content: string) {
-  const chipClass = "chip";
+export function completeChipContent(input: HTMLDivElement, content: string) {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) {
+    return;
+  }
 
-  for (const node of input.childNodes) {
-    if (
-      isSpanNode(node) &&
-      node.classList.contains(chipClass) &&
-      document.activeElement === node
-    ) {
-      node.textContent = content;
-      const spaceNode = document.createTextNode(nonBreakingSpace);
-      node.after(spaceNode);
-      setCursorAfterNode(spaceNode);
-      break;
-    }
+  const range = selection.getRangeAt(0);
+  const chipNode = range.startContainer;
+
+  if (chipNode && isChipNode(chipNode.parentNode!)) {
+    const chipElement = chipNode.parentNode as HTMLSpanElement;
+    chipElement.textContent = content;
+
+    const spaceNode = document.createTextNode(nonBreakingSpace);
+    chipElement.after(spaceNode);
+
+    setCursorAfterNode(spaceNode);
   }
 }

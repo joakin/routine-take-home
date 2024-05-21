@@ -35,29 +35,19 @@ onMounted(() => {
   }
 });
 
-/*
-watch(text, (newText) => {
-  const selection = window.getSelection();
-  const cursorPos = selection?.getRangeAt(0).startOffset;
-  for (const match of newText.matchAll(/(I pick you\s+)(\w*)(\s+|$)/g)) {
-    if (match) {
-      const cursorPosition = cursorPos || 0;
-      const wordStart = (match.index || 0) + match[1].length;
-      const wordEnd = wordStart + match[2].length;
-      if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
-        emit("autocomplete", match[2]);
-        return;
-      }
-    }
-  }
-  emit("autocompleteClose");
-});
-*/
-
 const onInput = (event: InputEvent) => {
   if (textInput.value) {
-    helpers.handleInputChange(textInput.value, event);
+    const { requestCompletions } = helpers.handleInputChange(
+      textInput.value,
+      event,
+    );
     isEmpty.value = textInput.value.textContent?.length === 0;
+
+    if (requestCompletions) {
+      emit("autocomplete", requestCompletions);
+    } else {
+      emit("autocompleteClose");
+    }
   }
 };
 
