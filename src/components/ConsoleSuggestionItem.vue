@@ -1,16 +1,28 @@
 <script setup lang="ts">
+import { defineProps, defineEmits, ref, toRefs, watch } from "vue";
+
 const props = defineProps<{
   focused: boolean;
 }>();
+
+const { focused } = toRefs(props);
+const button = ref<HTMLElement | null>(null);
 
 const emit = defineEmits<{
   select: [];
   focus: [];
 }>();
+
+watch(focused, (newFocused, oldFocused) => {
+  if (newFocused && !oldFocused) {
+    button.value?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+});
 </script>
 
 <template>
   <button
+    ref="button"
     class="console-suggestion-item"
     v-bind:class="{ focused: focused }"
     @click="emit('select')"

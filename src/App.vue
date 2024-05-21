@@ -12,14 +12,19 @@ const consoleInput = ref<HTMLInputElement | null>(null);
 async function onAutocomplete(word: string) {
   suggestions.value = suggestionsApi.getLoadingSuggestions(suggestions.value);
   suggestions.value = await suggestionsApi.getSuggestions(word);
-  focusedSuggestion.value =
-    suggestions.value &&
+  focusedSuggestion.value = suggestionsResponse(suggestions)?.at(0) ?? "";
+}
+
+function suggestionsResponse(
+  suggestions: ref<Suggestions | null>,
+): string[] | null {
+  return suggestions.value &&
     (suggestions.value.kind === "Success" ||
       suggestions.value.kind === "Loading") &&
     suggestions.value.response &&
     suggestions.value.response.length > 0
-      ? suggestions.value.response[0]
-      : "";
+    ? suggestions.value.response
+    : null;
 }
 
 function onAutocompleteClose() {
@@ -36,6 +41,26 @@ function onSelectedSuggestion(suggestion: string) {
     consoleInput.value.completeWord(suggestion);
   }
 }
+
+function onFocusPreviousSuggestion() {
+  const response = suggestionsResponse(suggestions);
+  if (response) {
+    const index = response.indexOf(focusedSuggestion.value);
+    if (index > 0) {
+      onFocusedSuggestion(response[index - 1]);
+    }
+  }
+}
+
+function onFocusNextSuggestion() {
+  const response = suggestionsResponse(suggestions);
+  if (response) {
+    const index = response.indexOf(focusedSuggestion.value);
+    if (index < response.length - 1) {
+      onFocusedSuggestion(response[index + 1]);
+    }
+  }
+}
 </script>
 
 <template>
@@ -43,9 +68,12 @@ function onSelectedSuggestion(suggestion: string) {
     <div class="console">
       <ConsoleInput
         ref="consoleInput"
+        :completionsOpen="Boolean(suggestions)"
         @autocomplete="onAutocomplete"
         @autocompleteClose="onAutocompleteClose"
         @enter="onSelectedSuggestion(focusedSuggestion)"
+        @previousCompletion="onFocusPreviousSuggestion"
+        @nextCompletion="onFocusNextSuggestion"
       />
       <transition name="fade-up" v-if="suggestions">
         <ConsoleSuggestions

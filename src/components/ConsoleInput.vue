@@ -3,10 +3,16 @@ import { ref, watch, onMounted } from "vue";
 import { defineProps, defineExpose } from "vue";
 import { useDebouncedRef } from "../utils/vue";
 
+const props = defineProps<{
+  completionsOpen: boolean;
+}>();
+
 const emit = defineEmits<{
   enter: [];
   autocomplete: [word: string];
   autocompleteClose: [];
+  previousCompletion: [];
+  nextCompletion: [];
 }>();
 
 const text = useDebouncedRef("");
@@ -37,6 +43,30 @@ defineExpose({
 const onInput = () => {
   if (textInput.value) {
     text.value = textInput.value.value;
+  }
+};
+
+const onKeyDown = (event: KeyboardEvent) => {
+  if (props.completionsOpen) {
+    if (event.key === "ArrowUp" || (event.key === "p" && event.ctrlKey)) {
+      emit("previousCompletion");
+      event.preventDefault();
+    } else if (
+      event.key === "ArrowDown" ||
+      (event.key === "n" && event.ctrlKey)
+    ) {
+      emit("nextCompletion");
+      event.preventDefault();
+    } else if (event.key === "Tab" && event.shiftKey) {
+      emit("previousCompletion");
+      event.preventDefault();
+    } else if (event.key === "Tab") {
+      emit("nextCompletion");
+      event.preventDefault();
+    } else if (event.key === "Enter") {
+      emit("enter");
+      event.preventDefault();
+    }
   }
 };
 
@@ -71,7 +101,7 @@ watch(text, (newText) => {
     placeholder="What will you pick?"
     :class="{ 'no-background': text !== '' }"
     @input="onInput"
-    @keydown.enter="emit('enter')"
+    @keydown="onKeyDown"
   />
 </template>
 
