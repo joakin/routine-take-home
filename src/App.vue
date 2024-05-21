@@ -61,6 +61,20 @@ function onFocusNextSuggestion() {
     }
   }
 }
+
+function onFocusFirstSuggestion() {
+  const response = suggestionsResponse(suggestions);
+  if (response) {
+    onFocusedSuggestion(response[0]);
+  }
+}
+
+function onFocusLastSuggestion() {
+  const response = suggestionsResponse(suggestions);
+  if (response) {
+    onFocusedSuggestion(response[response.length - 1]);
+  }
+}
 </script>
 
 <template>
@@ -74,6 +88,8 @@ function onFocusNextSuggestion() {
         @enter="onSelectedSuggestion(focusedSuggestion)"
         @previousCompletion="onFocusPreviousSuggestion"
         @nextCompletion="onFocusNextSuggestion"
+        @firstCompletion="onFocusFirstSuggestion"
+        @lastCompletion="onFocusLastSuggestion"
       />
       <transition name="fade-up" v-if="suggestions">
         <ConsoleSuggestions

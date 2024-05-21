@@ -13,6 +13,8 @@ const emit = defineEmits<{
   autocompleteClose: [];
   previousCompletion: [];
   nextCompletion: [];
+  firstCompletion: [];
+  lastCompletion: [];
 }>();
 
 const text = useDebouncedRef("");
@@ -66,6 +68,12 @@ const onKeyDown = (event: KeyboardEvent) => {
     } else if (event.key === "Enter") {
       emit("enter");
       event.preventDefault();
+    } else if (event.key === "Home" || (event.key === "a" && event.ctrlKey)) {
+      emit("firstCompletion");
+      event.preventDefault();
+    } else if (event.key === "End" || (event.key === "e" && event.ctrlKey)) {
+      emit("lastCompletion");
+      event.preventDefault();
     }
   }
 };
@@ -83,7 +91,6 @@ watch(text, (newText) => {
       const cursorPosition = cursorPos || 0;
       const wordStart = (match.index || 0) + match[1].length;
       const wordEnd = wordStart + match[2].length;
-      console.log(wordStart, wordEnd, cursorPosition);
       if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
         emit("autocomplete", match[2]);
         return;
