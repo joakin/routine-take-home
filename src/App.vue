@@ -8,7 +8,7 @@ import * as suggestionsApi from "./api/suggestions";
 
 const suggestions = ref<Suggestions | null>(null);
 const focusedSuggestion = ref<string>("");
-const consoleInput = ref<HTMLInputElement | null>(null);
+const consoleInput = ref<InstanceType<typeof ConsoleInput> | null>(null);
 
 async function onAutocomplete(word: string) {
   suggestions.value = suggestionsApi.getLoadingSuggestions(suggestions.value);
@@ -18,7 +18,8 @@ async function onAutocomplete(word: string) {
   // the same suggestion has changed position in the suggestions list.
   focusedSuggestion.value = "";
   await nextTick();
-  focusedSuggestion.value = suggestionsResponse(suggestions)?.at(0) ?? "";
+  const response = suggestionsResponse(suggestions);
+  focusedSuggestion.value = response ? response[0] : "";
 }
 
 function suggestionsResponse(

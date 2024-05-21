@@ -35,11 +35,11 @@ onMounted(() => {
   }
 });
 
-const onInput = (event: InputEvent) => {
+const onInput = (event: Event) => {
   if (textInput.value) {
     const { requestCompletions } = helpers.handleInputChange(
       textInput.value,
-      event,
+      event as InputEvent,
     );
     isEmpty.value = textInput.value.textContent?.length === 0;
 
