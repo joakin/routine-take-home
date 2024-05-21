@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
+import type { Ref } from "vue";
 import ConsoleInput from "./components/ConsoleInput.vue";
 import ConsoleSuggestions from "./components/ConsoleSuggestions.vue";
 import type { Suggestions } from "./api/suggestions";
@@ -12,11 +13,16 @@ const consoleInput = ref<HTMLInputElement | null>(null);
 async function onAutocomplete(word: string) {
   suggestions.value = suggestionsApi.getLoadingSuggestions(suggestions.value);
   suggestions.value = await suggestionsApi.getSuggestions(word);
+
+  // Reset focused suggestion, and next tick re-focus it. Avoids scroll bug when
+  // the same suggestion has changed position in the suggestions list.
+  focusedSuggestion.value = "";
+  await nextTick();
   focusedSuggestion.value = suggestionsResponse(suggestions)?.at(0) ?? "";
 }
 
 function suggestionsResponse(
-  suggestions: ref<Suggestions | null>,
+  suggestions: Ref<Suggestions | null>,
 ): string[] | null {
   return suggestions.value &&
     (suggestions.value.kind === "Success" ||
