@@ -42,6 +42,28 @@ defineExpose({
   },
 });
 
+onMounted(() => {
+  if (textInput.value) {
+    textInput.value.focus();
+  }
+});
+
+watch(text, (newText) => {
+  const cursorPos = textInput.value?.selectionStart;
+  for (const match of newText.matchAll(/(I pick you\s+)(\w*)(\s+|$)/g)) {
+    if (match) {
+      const cursorPosition = cursorPos || 0;
+      const wordStart = (match.index || 0) + match[1].length;
+      const wordEnd = wordStart + match[2].length;
+      if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
+        emit("autocomplete", match[2]);
+        return;
+      }
+    }
+  }
+  emit("autocompleteClose");
+});
+
 const onInput = () => {
   if (textInput.value) {
     text.value = textInput.value.value;
@@ -77,28 +99,6 @@ const onKeyDown = (event: KeyboardEvent) => {
     }
   }
 };
-
-onMounted(() => {
-  if (textInput.value) {
-    textInput.value.focus();
-  }
-});
-
-watch(text, (newText) => {
-  const cursorPos = textInput.value?.selectionStart;
-  for (const match of newText.matchAll(/(I pick you\s+)(\w*)(\s+|$)/g)) {
-    if (match) {
-      const cursorPosition = cursorPos || 0;
-      const wordStart = (match.index || 0) + match[1].length;
-      const wordEnd = wordStart + match[2].length;
-      if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
-        emit("autocomplete", match[2]);
-        return;
-      }
-    }
-  }
-  emit("autocompleteClose");
-});
 </script>
 
 <template>
@@ -106,7 +106,10 @@ watch(text, (newText) => {
     ref="textInput"
     type="text"
     placeholder="What will you pick?"
-    :class="{ 'no-background': text !== '' }"
+    :class="{
+      'no-background': text !== '' && !props.completionsOpen,
+      'background-enter-key': props.completionsOpen,
+    }"
     @input="onInput"
     @keydown="onKeyDown"
   />
@@ -132,6 +135,10 @@ input {
 
 input.no-background {
   background-image: none;
+}
+
+input.background-enter-key {
+  background-image: url("../assets/enter.svg");
 }
 
 input::placeholder {
