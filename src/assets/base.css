@@ -1,3 +1,39 @@
+@font-face {
+  font-family: "GT America";
+  src: url("../assets/gtamerica/GT-America-Thin.otf") format("opentype");
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: "GT America";
+  src: url("../assets/gtamerica/GT-America-Light.otf") format("opentype");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "GT America";
+  src: url("../assets/gtamerica/GT-America-Regular.otf") format("opentype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "GT America";
+  src: url("../assets/gtamerica/GT-America-Medium.otf") format("opentype");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "GT America";
+  src: url("../assets/gtamerica/GT-America-Bold.otf") format("opentype");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "GT America";
+  src: url("../assets/gtamerica/GT-America-Black.otf") format("opentype");
+  font-weight: 900;
+}
+
 /* semantic color variables for this project */
 :root {
   --color-bg-grey-1: #f6f3ee;
