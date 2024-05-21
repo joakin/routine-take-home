@@ -87,6 +87,7 @@ const onKeyDown = (event: KeyboardEvent) => {
     class="console-input"
     ref="textInput"
     contenteditable="true"
+    spellcheck="false"
     :class="{
       'no-background': !isEmpty && !props.completionsOpen,
       'background-enter-key': props.completionsOpen,
