@@ -7,6 +7,7 @@ import * as suggestionsApi from "./api/suggestions";
 
 const suggestions = ref<Suggestions | null>(null);
 const focusedSuggestion = ref<string>("");
+const consoleInput = ref<HTMLInputElement | null>(null);
 
 async function onAutocomplete(word: string) {
   suggestions.value = suggestionsApi.getLoadingSuggestions(suggestions.value);
@@ -31,7 +32,9 @@ function onFocusedSuggestion(suggestion: string) {
 
 function onSelectedSuggestion(suggestion: string) {
   onAutocompleteClose();
-  console.log("selected", suggestion);
+  if (consoleInput.value && suggestion.length > 0) {
+    consoleInput.value.completeWord(suggestion);
+  }
 }
 </script>
 
@@ -39,8 +42,10 @@ function onSelectedSuggestion(suggestion: string) {
   <main>
     <div class="console">
       <ConsoleInput
+        ref="consoleInput"
         :onAutocomplete="onAutocomplete"
         :onAutocompleteClose="onAutocompleteClose"
+        @enter="onSelectedSuggestion(focusedSuggestion)"
       />
       <transition name="fade-up" v-if="suggestions">
         <ConsoleSuggestions

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, watch, onMounted } from "vue";
-import { defineProps } from "vue";
+import { defineProps, defineExpose } from "vue";
 import { useDebouncedRef } from "../utils/vue";
 
 const props = defineProps<{
@@ -8,8 +8,34 @@ const props = defineProps<{
   onAutocompleteClose: () => void;
 }>();
 
+const emit = defineEmits<{
+  enter: [];
+}>();
+
 const text = useDebouncedRef("");
 const textInput = ref<HTMLInputElement | null>(null);
+
+defineExpose({
+  completeWord(word: string) {
+    if (textInput.value) {
+      const input = textInput.value;
+      const cursorPos = input.selectionStart || 0;
+      const originalText = input.value || "";
+      const beforeCursor = originalText.slice(0, cursorPos);
+      const afterCursor = originalText.slice(cursorPos);
+      const lastSpaceIndex = beforeCursor.lastIndexOf(" ");
+      const beforeWord = beforeCursor.slice(0, lastSpaceIndex + 1);
+
+      const newText = beforeWord + word + " " + afterCursor;
+      input.value = newText;
+      text.value = newText;
+      input.setSelectionRange(
+        beforeWord.length + word.length + 1,
+        beforeWord.length + word.length + 1,
+      );
+    }
+  },
+});
 
 const onInput = () => {
   if (textInput.value) {
@@ -25,17 +51,21 @@ onMounted(() => {
 
 watch(text, (newText) => {
   const cursorPos = textInput.value?.selectionStart;
-  const match = newText.match(/(I pick you\s+)(\w+)(\s+|$)/);
-  if (match) {
-    const cursorPosition = cursorPos || 0;
-    const wordStart = match.index || 0 + match[1].length;
-    const wordEnd = wordStart + match[2].length;
-    if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
-      props.onAutocomplete(match[2]);
-    } else {
-      props.onAutocompleteClose();
+  let shouldCloseAutocomplete = false;
+  for (const match of newText.matchAll(/(I pick you\s+)(\w+)(\s+|$)/g)) {
+    if (match) {
+      const cursorPosition = cursorPos || 0;
+      const wordStart = (match.index || 0) + match[1].length;
+      const wordEnd = wordStart + match[2].length;
+      if (cursorPosition >= wordStart && cursorPosition <= wordEnd) {
+        props.onAutocomplete(match[2]);
+        return;
+      } else {
+        shouldCloseAutocomplete = true;
+      }
     }
-  } else {
+  }
+  if (shouldCloseAutocomplete) {
     props.onAutocompleteClose();
   }
 });
@@ -48,6 +78,7 @@ watch(text, (newText) => {
     placeholder="What will you pick?"
     :class="{ 'no-background': text !== '' }"
     @input="onInput"
+    @keydown.enter="emit('enter')"
   />
 </template>
 
