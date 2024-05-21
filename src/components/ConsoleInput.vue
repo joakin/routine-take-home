@@ -124,7 +124,6 @@ input {
   line-height: 39px;
 
   border-radius: 5px;
-
   border: none;
   outline: none;
 

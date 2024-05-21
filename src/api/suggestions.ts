@@ -42,9 +42,17 @@ export async function getSuggestions(query: string): Promise<Suggestions> {
   const suggestions: { phrase: string; score: number }[] = (
     await response.json()
   ).completions;
-  suggestions.sort((a, b) => b.score - a.score);
+
+  // Remove duplicates
+  const uniqueSuggestions = Array.from(
+    new Map(suggestions.map((s) => [s.phrase, s])).values(),
+  );
+
+  // Sort by descending score
+  uniqueSuggestions.sort((a, b) => b.score - a.score);
+
   return {
     kind: "Success",
-    response: suggestions.map((suggestion) => suggestion.phrase),
+    response: uniqueSuggestions.map((suggestion) => suggestion.phrase),
   };
 }
