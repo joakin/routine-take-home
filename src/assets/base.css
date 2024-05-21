@@ -45,20 +45,23 @@
   --color-grey-7: #f9f6f3;
   --color-black: #444444;
   --color-figma-bg: #292827;
+  --color-blue-1: #4754dc; /* Couldn't select this color in the figma to know the real name */
 
   --background-color-dark: var(--color-figma-bg);
-  --color-text-dark: var(--color-bg-grey-1);
-
   --background-color: var(--color-bg-grey-1);
   --background-color-selected: var(--color-grey-5);
   --background-color-hovered: var(--color-grey-6);
+  --background-color-chip: var(--color-grey-5);
   --background-color-scrollbar: var(--color-grey-2);
   --background-color-scrollbar-hover: var(--color-grey-1);
 
+  --color-text-dark: var(--color-bg-grey-1);
   --color-text: var(--color-black);
-
   --color-text-placeholder: var(--color-grey-3);
+  --color-text-keyword: var(--color-blue-1);
 
+  --space-xxxxxs: 2px;
+  --space-xxxxs: 4px;
   --space-xxxs: 8px;
   --space-xxs: 10px;
   --space-xs: 12px;
@@ -72,8 +75,13 @@
 
   --font-size-s: 14px;
   --font-size-m: 16px;
-  --font-size-l: 20px;
+  --font-size-l: 22px;
   --font-size-xl: 26px;
+
+  --line-height: 1.6;
+
+  --border-radius-s: 3px;
+  --border-radius: 5px;
 }
 
 *,
@@ -108,7 +116,7 @@ select,
 td,
 button,
 textarea {
-  line-height: 1.6;
+  line-height: var(--line-height);
   font-family:
     "GT America",
     -apple-system,

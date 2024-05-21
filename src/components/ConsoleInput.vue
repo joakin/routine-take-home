@@ -161,10 +161,10 @@ function onBeforeInput(event: Event) {
   padding: var(--space) var(--space-l);
 
   font-size: var(--font-size-xl);
-  line-height: 39px;
+  line-height: var(--line-height);
   color: var(--color-text);
 
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   border: none;
   outline: none;
 
@@ -194,12 +194,17 @@ function onBeforeInput(event: Event) {
 
 <style>
 .console-input-keyword {
-  color: blue;
+  color: var(--color-text-keyword);
 }
+
 .console-input-chip {
-  color: brown;
-  background-color: papayawhip;
-  padding: 2px 4px;
-  border-radius: 3px;
+  padding: var(--space-xxxxxs) var(--space-xxs);
+
+  font-size: var(--font-size-l);
+  font-weight: var(--font-weight-md);
+  line-height: var(--line-height);
+
+  background-color: var(--background-color-chip);
+  border-radius: var(--border-radius-s);
 }
 </style>
